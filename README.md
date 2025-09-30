@@ -12,7 +12,7 @@
 
 🌱 I'm always learning new things and improving my skills. 
 
-⚡ Fun fact **I can play a Holophoner.**
+⚡ Fun fact **I can play a Holophonor.**
 
  </div>
 
