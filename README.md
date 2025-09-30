@@ -12,7 +12,7 @@
 
 🌱 I'm always learning new things and improving my skills. 
 
-⚡ Fun fact **I can play a Holorophone.**
+⚡ Fun fact **I can play a Holophoner.**
 
  </div>
 
@@ -21,7 +21,7 @@
 <h2 align="center">⚒️ Skills I'm Currently Learning ⚒️</h2>
 <br/>
 <div align="center">
-    <img src="https://skillicons.dev/icons?i=vscode,git,github,eclipse,html,css" />
+    <img src="https://skillicons.dev/icons?i=vscode,git,github,eclipse,html,css" /><br>
     <img src="https://skillicons.dev/icons?i=java,php,mysql,windows,ubuntu" /><br>
 </div>
 
