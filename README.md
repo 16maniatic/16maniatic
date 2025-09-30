@@ -18,10 +18,10 @@
 
  <hr/>
  
-<h2 align="center">⚒️ Skills I'm Currently Learning   ⚒️</h2>
+<h2 align="center">⚒️ Skills I'm Currently Learning ⚒️</h2>
 <br/>
 <div align="center">
-    <img src="https://skillicons.dev/icons?i=vscode,git,github,eclipse, html,css" />
+    <img src="https://skillicons.dev/icons?i=vscode,git,github,eclipse,html,css" />
     <img src="https://skillicons.dev/icons?i=java,php,mysql,windows,ubuntu" /><br>
 </div>
 
