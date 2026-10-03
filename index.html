@@ -1,1 +1,197 @@
-<h1>create<h1>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vicente García — Desarrollador web</title>
+  <meta name="description" content="Portfolio de Vicente García, estudiante de Desarrollo de Aplicaciones Web.">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23000'/><circle cx='20' cy='22' r='2' fill='%23cfd6e0'/><circle cx='44' cy='16' r='1.5' fill='%23cfd6e0'/><circle cx='38' cy='42' r='3' fill='%23fff'/><circle cx='16' cy='46' r='1.2' fill='%23cfd6e0'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <a class="skip" href="#main">Saltar al contenido</a>
+
+  <header class="nav" id="top">
+    <div class="wrap nav__inner">
+      <a class="nav__logo" href="#top" aria-label="Inicio">VG</a>
+      <button class="nav__toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Abrir menú">
+        <span></span><span></span>
+      </button>
+      <nav id="nav-menu" class="nav__menu" aria-label="Principal">
+        <a href="#sobre-mi">Sobre mí</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#trayectoria">Trayectoria</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero wrap">
+      <p class="eyebrow reveal">Portfolio · Desarrollo web</p>
+      <h1 class="hero__title reveal">Vicente<br>García</h1>
+      <p class="hero__lead reveal">
+        Desarrollador web en formación. Estudio el grado superior en
+        Desarrollo de Aplicaciones Web y disfruto construyendo
+        interfaces cuidadas, ordenadas y atentas al detalle.
+      </p>
+      <div class="hero__actions reveal">
+        <a class="btn btn--solid" href="#contacto">Hablemos</a>
+        <a class="btn btn--ghost" href="#trayectoria">Ver trayectoria</a>
+      </div>
+      <a class="hero__scroll" href="#sobre-mi" aria-label="Bajar a Sobre mí"><span></span></a>
+    </section>
+
+    <!-- SOBRE MÍ -->
+    <section class="section wrap" id="sobre-mi">
+      <header class="section__head reveal">
+        <span class="section__num">01</span>
+        <h2 class="section__title">Sobre mí</h2>
+      </header>
+
+      <div class="about reveal">
+        <p class="about__big">
+          Apasionado por aprender nuevas tecnologías y por contribuir al
+          desarrollo de proyectos creativos.
+        </p>
+        <p>
+          Actualmente curso el CFGS en Desarrollo de Aplicaciones Web en el
+          CDP José Cabrera. Destaco por mi capacidad de organización, el
+          trabajo en equipo y la atención al detalle — cualidades que intento
+          trasladar a cada línea de código.
+        </p>
+      </div>
+
+      <div class="skills">
+        <div class="skills__group reveal">
+          <h3>Tecnologías</h3>
+          <ul class="tags">
+            <li>HTML</li><li>CSS</li><li>JavaScript</li>
+            <li>Java</li><li>PHP</li><li>SQL</li><li>Linux</li>
+          </ul>
+        </div>
+        <div class="skills__group reveal">
+          <h3>Habilidades</h3>
+          <ul class="list">
+            <li>Trabajo en equipo</li>
+            <li>Organización</li>
+            <li>Creatividad</li>
+            <li>Ofimática y edición de vídeo</li>
+          </ul>
+        </div>
+        <div class="skills__group reveal">
+          <h3>Idiomas</h3>
+          <ul class="list">
+            <li>Español <span>Nativo</span></li>
+            <li>Inglés <span>Básico</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROYECTOS -->
+    <section class="section wrap" id="proyectos">
+      <header class="section__head reveal">
+        <span class="section__num">02</span>
+        <h2 class="section__title">Proyectos</h2>
+      </header>
+
+      <div class="soon reveal">
+        <p class="soon__label">Próximamente</p>
+        <p class="soon__text">
+          Estoy trabajando en mis primeros proyectos. Muy pronto podrás verlos aquí.
+        </p>
+      </div>
+    </section>
+
+    <!-- TRAYECTORIA -->
+    <section class="section wrap" id="trayectoria">
+      <header class="section__head reveal">
+        <span class="section__num">03</span>
+        <h2 class="section__title">Trayectoria</h2>
+      </header>
+
+      <div class="timeline">
+        <div class="timeline__col reveal">
+          <h3 class="timeline__label">Experiencia</h3>
+          <ol class="timeline__list">
+            <li>
+              <time>Feb 2025</time>
+              <div>
+                <h4>Programador · Prácticas</h4>
+                <p class="where">CDP José Cabrera</p>
+                <p>Prácticas formativas desarrollando tareas propias del perfil de programador con WordPress, Python y Angular.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <div class="timeline__col reveal">
+          <h3 class="timeline__label">Formación</h3>
+          <ol class="timeline__list">
+            <li>
+              <time>2024 — Actualidad</time>
+              <div>
+                <h4>CFGS Desarrollo de Aplicaciones Web</h4>
+                <p class="where">CDP José Cabrera</p>
+              </div>
+            </li>
+            <li>
+              <time>2021 — 2023</time>
+              <div>
+                <h4>Bachillerato</h4>
+                <p class="where">IES Cristóbal Colón</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section class="section wrap" id="contacto">
+      <header class="section__head reveal">
+        <span class="section__num">04</span>
+        <h2 class="section__title">Contacto</h2>
+      </header>
+
+      <div class="contact">
+        <div class="contact__intro reveal">
+          <p class="about__big">¿Tienes una idea, una oferta o simplemente quieres saludar?</p>
+          <p>Rellena el formulario y se abrirá tu aplicación de correo con el mensaje listo para enviar.</p>
+        </div>
+
+        <form class="form reveal" id="contact-form" novalidate>
+          <label>
+            <span>Nombre</span>
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+          <label>
+            <span>Asunto</span>
+            <input type="text" name="subject" required>
+          </label>
+          <label>
+            <span>Mensaje</span>
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+          <p class="form__error" role="alert" hidden>Por favor, completa todos los campos.</p>
+          <button class="btn btn--solid" type="submit">Escribir correo <span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <p>© <span id="year">2026</span> Vicente García</p>
+    <a href="#top">Volver arriba ↑</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
