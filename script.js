@@ -1,6 +1,3 @@
-// Dirección a la que llegan los mensajes del formulario de contacto
-const CONTACT_EMAIL = "vgarsan@proton.me";
-
 document.getElementById("year").textContent = new Date().getFullYear();
 
 // ---------- Navegación ----------
@@ -16,7 +13,13 @@ const setMenu = (open) => {
 
 toggle.addEventListener("click", () => setMenu(toggle.getAttribute("aria-expanded") !== "true"));
 menu.addEventListener("click", (e) => { if (e.target.closest("a")) setMenu(false); });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || toggle.getAttribute("aria-expanded") !== "true") return;
+  setMenu(false);
+  toggle.focus();
+});
+// Cierra el menú al tocar fuera de la barra
+document.addEventListener("click", (e) => { if (!nav.contains(e.target)) setMenu(false); });
 
 window.addEventListener("scroll", () => {
   nav.classList.toggle("is-scrolled", window.scrollY > 8);
@@ -36,46 +39,59 @@ document.querySelectorAll("main section[id]").forEach((s) => sectionObserver.obs
 const revealObserver = new IntersectionObserver((entries, obs) => {
   entries.forEach((entry) => {
     if (!entry.isIntersecting) return;
-    entry.target.classList.add("is-visible");
-    obs.unobserve(entry.target);
+    const el = entry.target;
+    el.classList.add("is-visible");
+    obs.unobserve(el);
+    // Una vez terminada la entrada, quita los retrasos para que el hover responda al instante
+    setTimeout(() => el.classList.add("is-done"), 1800);
   });
-}, { threshold: 0.12 });
+}, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
 
-document.querySelectorAll(".reveal").forEach((el, i) => {
-  // Pequeño escalonado para los elementos del hero
-  if (el.closest(".hero")) el.style.transitionDelay = `${i * 90}ms`;
+document.querySelectorAll(".reveal").forEach((el) => {
+  // Escalonado entre bloques hermanos (p. ej. las tres columnas de habilidades)
+  const siblings = [...el.parentElement.children].filter((c) => c.classList.contains("reveal"));
+  el.style.setProperty("--d", `${siblings.indexOf(el) * 90}ms`);
   revealObserver.observe(el);
 });
 
-// ---------- Formulario de contacto (abre el cliente de correo) ----------
-const form = document.getElementById("contact-form");
-const error = form.querySelector(".form__error");
-
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const fields = [...form.querySelectorAll("input, textarea")];
-  let valid = true;
-
-  fields.forEach((f) => {
-    const empty = !f.value.trim();
-    f.setAttribute("aria-invalid", String(empty));
-    if (empty) valid = false;
-  });
-
-  error.hidden = valid;
-  if (!valid) {
-    fields.find((f) => !f.value.trim()).focus();
-    return;
-  }
-
-  const { name, subject, message } = Object.fromEntries(new FormData(form));
-  const body = `${message.trim()}\n\n— ${name.trim()}`;
-  window.location.href =
-    `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject.trim())}&body=${encodeURIComponent(body)}`;
+// Numera los elementos de cada lista para escalonarlos desde CSS
+document.querySelectorAll(".tags, .list, .timeline__list").forEach((list) => {
+  [...list.children].forEach((li, i) => li.style.setProperty("--i", i));
 });
 
-form.addEventListener("input", (e) => {
-  if (e.target.value.trim()) e.target.setAttribute("aria-invalid", "false");
+// ---------- Foco de luz que sigue al cursor ----------
+if (window.matchMedia("(hover: hover)").matches) {
+  document.querySelectorAll(".spot").forEach((el) => {
+    el.addEventListener("pointermove", (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    });
+  });
+}
+
+// ---------- Copiar correo ----------
+const copyBtn = document.getElementById("copy-mail");
+const mailStatus = document.querySelector(".mail__status");
+let statusTimer;
+
+copyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(copyBtn.dataset.mail);
+    copyBtn.textContent = "Copiada ✓";
+    copyBtn.classList.remove("is-done");
+    void copyBtn.offsetWidth; // reinicia la animación si se pulsa varias veces
+    copyBtn.classList.add("is-done");
+    mailStatus.textContent = "Dirección copiada al portapapeles.";
+  } catch {
+    mailStatus.textContent = `No se pudo copiar. La dirección es ${copyBtn.dataset.mail}`;
+  }
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => {
+    copyBtn.textContent = "Copiar dirección";
+    copyBtn.classList.remove("is-done");
+    mailStatus.textContent = "";
+  }, 2500);
 });
 
 // ---------- Campo de estrellas ----------
@@ -83,17 +99,30 @@ form.addEventListener("input", (e) => {
   const canvas = document.getElementById("stars");
   const ctx = canvas.getContext("2d");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let w, h, dpr, stars = [], streak = null, nextStreak = performance.now() + 6000;
+  let w = 0, h, dpr, stars = [], streak = null, nextStreak = performance.now() + 6000;
 
-  // Tres capas de profundidad: cuanto más cerca, más grande, brillante y más parallax
+  // Tres capas de profundidad: cuanto más cerca, más grande, brillante, más parallax
+  // y más rápida la deriva (px/s), lo que da sensación de viaje por el espacio
   const LAYERS = [
-    { density: 0.00018, size: [0.3, 0.7], alpha: [0.25, 0.55], parallax: 0.03 },
-    { density: 0.00007, size: [0.6, 1.1], alpha: [0.45, 0.8], parallax: 0.07 },
-    { density: 0.00002, size: [1.0, 1.6], alpha: [0.7, 1.0], parallax: 0.14 },
+    { density: 0.00018, size: [0.3, 0.7], alpha: [0.25, 0.55], parallax: 0.03, drift: 4 },
+    { density: 0.00007, size: [0.6, 1.1], alpha: [0.45, 0.8], parallax: 0.07, drift: 10 },
+    { density: 0.00002, size: [1.0, 1.6], alpha: [0.7, 1.0], parallax: 0.14, drift: 22 },
   ];
+  // Dirección de la deriva: hacia la izquierda y ligeramente hacia arriba
+  const DRIFT_X = -Math.cos(0.2), DRIFT_Y = -Math.sin(0.2);
   const rand = (a, b) => a + Math.random() * (b - a);
 
   function resize() {
+    // En móvil, la barra de direcciones cambia el alto al hacer scroll:
+    // si sólo varía un poco el alto, ajustamos el lienzo sin regenerar las estrellas.
+    const sameWidth = window.innerWidth === w;
+    const smallHeightChange = Math.abs(window.innerHeight - h) < 160;
+    if (sameWidth && smallHeightChange && stars.length) {
+      h = window.innerHeight;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return;
+    }
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = window.innerWidth;
     h = window.innerHeight;
@@ -111,6 +140,7 @@ form.addEventListener("input", (e) => {
           r: rand(...layer.size),
           a: rand(...layer.alpha),
           p: layer.parallax,
+          v: layer.drift * rand(0.85, 1.15),
           tw: rand(0.4, 1.6),   // velocidad de titileo
           ph: Math.random() * Math.PI * 2,
           tint: Math.random() < 0.15 ? "200,215,255" : "255,255,255",
@@ -137,17 +167,19 @@ form.addEventListener("input", (e) => {
     const scroll = window.scrollY;
 
     for (const s of stars) {
-      const y = (((s.y - scroll * s.p) % h) + h) % h;
+      const t = now / 1000;
+      const x = (((s.x + t * s.v * DRIFT_X) % w) + w) % w;
+      const y = (((s.y + t * s.v * DRIFT_Y - scroll * s.p) % h) + h) % h;
       const twinkle = reduceMotion ? 1 : 0.65 + 0.35 * Math.sin(now * 0.001 * s.tw + s.ph);
       ctx.fillStyle = `rgba(${s.tint},${s.a * twinkle})`;
       ctx.beginPath();
-      ctx.arc(s.x, y, s.r, 0, Math.PI * 2);
+      ctx.arc(x, y, s.r, 0, Math.PI * 2);
       ctx.fill();
       if (s.r > 1.3) {
         // Halo suave para las estrellas más cercanas
         ctx.fillStyle = `rgba(${s.tint},${0.08 * twinkle})`;
         ctx.beginPath();
-        ctx.arc(s.x, y, s.r * 4, 0, Math.PI * 2);
+        ctx.arc(x, y, s.r * 4, 0, Math.PI * 2);
         ctx.fill();
       }
     }

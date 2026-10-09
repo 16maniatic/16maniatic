@@ -1,0 +1,8 @@
+# Ignorar todo por defecto
+*
+
+# Permitir solo los archivos del sitio
+!.gitignore
+!index.html
+!styles.css
+!script.js
