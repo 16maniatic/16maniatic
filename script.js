@@ -35,6 +35,148 @@ const sectionObserver = new IntersectionObserver((entries) => {
 }, { rootMargin: "-45% 0px -50% 0px" });
 document.querySelectorAll("main section[id]").forEach((s) => sectionObserver.observe(s));
 
+// ---------- Proyectos (carrusel Studio HEED) ----------
+// Para añadir un proyecto, copia un objeto y rellena sus campos:
+//   titulo:        nombre que aparece en el pie (14px)
+//   categoria:     categoría o tecnología (12px), sin puntuación
+//   imagen:        ruta de la captura (opcional; sin imagen la tarjeta va de color sólido)
+//   alt:           texto alternativo de la imagen
+//   enlace:        URL a la que lleva la tarjeta (las externas se abren en otra pestaña)
+//   colorRespaldo: color sin imagen: "navy" (#00174f) o "cement" (#c2c1bf)
+//   descripcion:   texto para lectores de pantalla (opcional, no se muestra)
+const PROYECTOS = [
+  {
+    titulo: "Showdown Planner",
+    categoria: "Planificador de equipos Pokémon",
+    imagen: "img/showdown-planner.png",
+    alt: "Página de inicio de Showdown Planner con un equipo Pokémon de ejemplo y su puntuación",
+    enlace: "https://showdownplanner.com/",
+    colorRespaldo: "navy",
+    descripcion: "Planificador de equipos para Pokémon competitivo: crea o genera un equipo, revisa su cobertura y debilidades al momento y obtén un set competitivo para cada hueco.",
+  },
+];
+
+(() => {
+  const root = document.querySelector("#proyectos .heed");
+  const viewport = root && root.querySelector(".heed__viewport");
+  const track = document.getElementById("project-list");
+  if (!root || !viewport || !track) return;
+
+  const VELOCIDAD = 35; // px por segundo, igual tenga los proyectos que tenga
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let duracionMs = 0;
+
+  const el = (tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  };
+
+  function crearTarjeta(p, copia) {
+    const li = el("li", "heed__item");
+    const card = el("a", "heed-card");
+    card.href = p.enlace;
+    const externo = /^https?:\/\//.test(p.enlace);
+    if (externo) {
+      card.target = "_blank";
+      card.rel = "noopener";
+    }
+
+    const tile = el("span", "heed-card__tile" + (p.colorRespaldo === "cement" ? " heed-card__tile--cement" : ""));
+    if (p.imagen) {
+      const img = el("img");
+      img.src = p.imagen;
+      img.alt = p.alt || "";
+      img.decoding = "async";
+      tile.append(img);
+    }
+
+    const caption = el("span", "heed-card__caption");
+    caption.append(el("h3", "heed-card__title", p.titulo), el("span", "heed-card__cat", p.categoria));
+
+    const extra = [p.descripcion, externo && "(se abre en una pestaña nueva)"].filter(Boolean).join(" ");
+    card.append(tile, caption);
+    if (extra) card.append(el("span", "heed-sr", extra));
+
+    // Las copias del bucle son decorativas: fuera del lector de pantalla y del tabulador
+    if (copia) {
+      li.setAttribute("aria-hidden", "true");
+      card.tabIndex = -1;
+    }
+    li.append(card);
+    return li;
+  }
+
+  function montar() {
+    track.classList.remove("is-animated");
+    track.replaceChildren(...PROYECTOS.map((p) => crearTarjeta(p, false)));
+    // Con un solo proyecto la tarjeta se queda quieta: el carrusel empieza a partir de dos
+    track.classList.toggle("is-static", PROYECTOS.length < 2);
+    if (reduceMotion.matches || PROYECTOS.length < 2) return;
+
+    // Ancho de una tanda (tarjeta + gap por cada proyecto)
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    const anchoTarjeta = track.firstElementChild.getBoundingClientRect().width;
+    const tanda = PROYECTOS.length * (anchoTarjeta + gap);
+
+    // Repite la tanda hasta cubrir la pantalla y luego duplica todo:
+    // la pista mide 2 mitades iguales y translateX(-50%) empalma sin salto.
+    const repeticiones = Math.max(1, Math.ceil(viewport.clientWidth / tanda));
+    const copias = document.createDocumentFragment();
+    for (let r = 1; r < repeticiones * 2; r++) {
+      PROYECTOS.forEach((p) => copias.append(crearTarjeta(p, true)));
+    }
+    track.append(copias);
+
+    const mitad = repeticiones * tanda;
+    duracionMs = (mitad / VELOCIDAD) * 1000;
+    root.style.setProperty("--heed-duration", `${duracionMs / 1000}s`);
+    track.classList.add("is-animated");
+  }
+
+  // Al tabular, la tarjeta con foco puede estar fuera de la vista: adelanta la animación hasta ella
+  track.addEventListener("focusin", (e) => {
+    viewport.scrollLeft = 0;
+    const li = e.target.closest(".heed__item");
+    const anim = track.getAnimations ? track.getAnimations()[0] : null;
+    if (!li || !anim || !duracionMs) return;
+    const r = li.getBoundingClientRect();
+    const v = viewport.getBoundingClientRect();
+    if (r.left >= v.left && r.right <= v.right) return;
+    const mitad = track.scrollWidth / 2;
+    const margen = Math.min(v.width * 0.06, 40);
+    const destino = Math.max(0, li.offsetLeft - margen) % mitad;
+    anim.currentTime = (destino / mitad) * duracionMs;
+  });
+
+  let ultimoAncho = window.innerWidth;
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      // En móvil la barra de direcciones cambia solo el alto: no hace falta rehacer nada
+      if (window.innerWidth === ultimoAncho) return;
+      ultimoAncho = window.innerWidth;
+      montar();
+    }, 200);
+  });
+  reduceMotion.addEventListener("change", montar);
+
+  montar();
+
+  // Aparición de la fila al llegar con el scroll
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries, obs) => {
+      if (!entries[0].isIntersecting) return;
+      root.classList.add("is-in");
+      obs.disconnect();
+    }, { threshold: 0.1 }).observe(root);
+  } else {
+    root.classList.add("is-in");
+  }
+})();
+
 // ---------- Animaciones de entrada ----------
 const revealObserver = new IntersectionObserver((entries, obs) => {
   entries.forEach((entry) => {

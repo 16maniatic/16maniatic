@@ -241,17 +241,129 @@ a { color: inherit; text-decoration: none; }
 @media (hover: hover) { .list li:hover { border-bottom-color: var(--line-strong); } }
 .list li span { color: var(--muted); font-size: .85rem; }
 
+/* ---------- Projects · estilo Studio HEED (carrusel) ----------
+   Tokens limitados a la sección de proyectos para no chocar con el resto de la web.
+   Paleta cerrada (void, white, navy, cement), radio único de 5px, sin sombras ni degradados. */
+#proyectos .heed {
+  --heed-void: #000000;
+  --heed-white: #ffffff;
+  --heed-navy: #00174f;
+  --heed-cement: #c2c1bf;
+  --heed-font: "Suisse Intl", "Inter", sans-serif;
+  --heed-weight: 600;
+  --heed-text-caption: 12px;
+  --heed-text-body-sm: 14px;
+  --heed-leading: 1.4;
+  --heed-gap: 14px;
+  --heed-caption-space: 20px;
+  --heed-radius: 5px;
+  --heed-card-w: clamp(240px, 28vw, 380px);
+  --heed-duration: 60s;           /* la calcula script.js según el ancho de la pista */
+  --heed-ease: cubic-bezier(.25, .1, .25, 1);
+
+  position: relative;
+  /* Dentro de la caja: respeta su padding lateral para no tocar el borde */
+  text-align: left;
+  font: var(--heed-weight) var(--heed-text-body-sm)/var(--heed-leading) var(--heed-font);
+  color: var(--heed-white);
+}
+.heed__viewport {
+  overflow: hidden;
+  overflow: clip;        /* clip: el foco no puede desplazar la fila */
+  padding-block: 3px;    /* sitio para el outline de foco */
+}
+.heed__track {
+  position: relative;
+  display: flex;
+  gap: var(--heed-gap);
+  padding-right: var(--heed-gap); /* así el -50% cae justo en el empalme */
+  width: max-content;
+}
+.heed__track.is-animated {
+  animation: heed-marquee var(--heed-duration) linear infinite;
+  will-change: transform;
+}
+@keyframes heed-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (hover: hover) { .heed__viewport:hover .heed__track { animation-play-state: paused; } }
+.heed__track:focus-within { animation-play-state: paused; }
+.heed__item { flex: 0 0 var(--heed-card-w); max-width: 100%; }
+/* Un solo proyecto: tarjeta quieta y centrada en la caja */
+.heed__track.is-static { width: auto; padding-inline: 0; justify-content: center; }
+.heed noscript { display: block; padding-inline: var(--gutter); }
+.heed__noscript { font-size: var(--heed-text-body-sm); }
+
+.heed-card { display: block; color: var(--heed-white); border-radius: var(--heed-radius); }
+/* La imagen ES la tarjeta: sin padding, radio de 5px, color sólido si no hay imagen */
+.heed-card__tile {
+  display: block; position: relative; overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--heed-radius);
+  background: var(--heed-navy);
+  transform: translateZ(0); /* Safari: recorta bien el zoom con el radio */
+}
+.heed-card__tile--cement { background: var(--heed-cement); }
+.heed-card__tile img {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: left top;
+  transition: transform 400ms var(--heed-ease);
+}
+/* Pie de dos líneas, siempre debajo de la imagen */
+.heed-card__caption { display: block; padding-top: var(--heed-caption-space); }
+.heed-card__title,
+.heed-card__cat {
+  display: block; margin: 0;
+  font: var(--heed-weight) var(--heed-text-body-sm)/var(--heed-leading) var(--heed-font);
+  letter-spacing: normal; text-transform: none; color: var(--heed-white);
+}
+.heed-card__cat { font-size: var(--heed-text-caption); }
+.heed-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Hover y foco: zoom leve de la imagen dentro de la tarjeta */
+@media (hover: hover) { .heed-card:hover .heed-card__tile img { transform: scale(1.03); } }
+.heed-card:focus-visible .heed-card__tile img { transform: scale(1.03); }
+/* Foco: outline blanco fino sobre la imagen, manteniendo el radio de 5px */
+.heed-card:focus-visible { outline: none; border-radius: var(--heed-radius); }
+.heed-card:focus-visible .heed-card__tile { outline: 1px solid var(--heed-white); outline-offset: 2px; }
+
+/* Aparición de la fila al llegar con el scroll (la clase .is-in la pone script.js) */
+.js .heed { opacity: 0; transform: translateY(12px); transition: opacity 500ms var(--heed-ease), transform 500ms var(--heed-ease); }
+.js .heed.is-in { opacity: 1; transform: none; }
+
+/* Movimiento reducido: sin animación, scroll horizontal normal con scroll-snap */
+@media (prefers-reduced-motion: reduce) {
+  .heed__viewport {
+    overflow-x: auto; overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: thin;
+    scrollbar-color: var(--heed-white) var(--heed-void);
+  }
+  .heed__track { padding-inline: var(--gutter); }
+  .heed__item { scroll-snap-align: start; }
+  .heed__track.is-animated { animation: none; will-change: auto; }
+  .js .heed { opacity: 1; transform: none; transition: none; }
+  .heed-card__tile img { transition: none; }
+  .heed-card:hover .heed-card__tile img,
+  .heed-card:focus-visible .heed-card__tile img { transform: none; }
+}
+
 /* ---------- Projects (coming soon) ---------- */
 .soon {
   position: relative; overflow: hidden;
-  padding: clamp(3.5rem, 10vw, 7rem) clamp(1rem, 4vw, 1.5rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4vw, 1.5rem);
   border: 1px solid var(--line); border-radius: 4px;
   background: radial-gradient(ellipse at center, rgba(200, 212, 230, .05), transparent 70%);
   text-align: center;
   transition: border-color .5s var(--ease);
 }
-.soon > * { position: relative; }
-/* Foco de luz que sigue al cursor */
+.soon > * { position: relative; }/* Foco de luz que sigue al cursor */
 .spot::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(28rem circle at var(--mx, 50%) var(--my, 50%), rgba(220, 228, 240, .08), transparent 60%);
